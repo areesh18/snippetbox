@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 // defining a home handler function which writes a byte slice contianing
@@ -17,7 +19,14 @@ func home(w http.ResponseWriter, r *http.Request) {
 
 // showSnippet handler function
 func showSnippet(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Show a specific snippet"))
+	id, err := strconv.Atoi(r.URL.Query().Get("id"))
+
+	if err != nil || id < 1 {
+		http.NotFound(w, r)
+		return
+	}
+	fmt.Fprintf(w, "Display a specific snippet with id %d...", id)
+	//so we are able to pass w because w has a write method which satisfies the io.writer interface which is requried as the first argument of the fmt.Fprintf
 }
 
 // createSnippet handler function
