@@ -2,9 +2,9 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 	"net/http"
+	"os"
 )
 
 func main() {
@@ -13,6 +13,9 @@ func main() {
 	//fmt.Printf("Before Parsing, The value at %p is %s", addr, *addr)
 	flag.Parse()
 	//fmt.Printf("\nAfter Parsing, The value at %p is %s\n", addr, *addr)
+
+	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", home)
 	mux.HandleFunc("/snippet", showSnippet)
@@ -23,7 +26,7 @@ func main() {
 
 	//strip the "/static" using http.StripPrefix to avoid doubling up like "/static/static/...."
 	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
-	log.Printf("Starting server on: %s", *addr)
+	infoLog.Printf("Starting server on %s", *addr)
 	err := http.ListenAndServe(*addr, mux)
-	log.Fatal(err)
+	errorLog.Fatal(err)
 }
