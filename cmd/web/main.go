@@ -37,8 +37,6 @@ func main() {
 		infoLog:  infoLog,
 	}
 
-	//strip the "/static" using http.StripPrefix to avoid doubling up like "/static/static/...."
-
 	srv := &http.Server{
 		Addr:     *addr,
 		ErrorLog: errorLog,
