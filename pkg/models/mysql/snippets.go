@@ -32,7 +32,7 @@ func (m *SnippetModel) Insert(title, content, expires string) (int, error) {
 // this will return a specific snippet based on its id
 func (m *SnippetModel) Get(id int) (*models.Snippet, error) {
 	stmt := `SELECT id, title, content, created, expires FROM snippets
-WHERE expires > UTC_TIMESTAMP() AND id = ?`
+	WHERE expires > UTC_TIMESTAMP() AND id = ?`
 
 	//returns a pointer to a sql.Row object which holds the result from the database
 	row := m.DB.QueryRow(stmt, id)
@@ -53,5 +53,38 @@ WHERE expires > UTC_TIMESTAMP() AND id = ?`
 
 // this will return the 10 most recently created snippets
 func (m *SnippetModel) Latest() ([]*models.Snippet, error) {
-	return nil, nil
+	stmt := `SELECT id, title, content, created, expires FROM snippets
+	 WHERE expires > UTC_TIMESTAMP() ORDER BY created DESC LIMIT 10`
+
+	//Use the Query() method on connection pool to execute our SQL query
+	rows, err := m.DB.Query(stmt)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	//initialize an empty slice to hold the models.Snippets object
+	snippets := []*models.Snippet{}
+
+	for rows.Next() {
+		s := &models.Snippet{}
+
+		err = rows.Scan(&s.ID, &s.Title, &s.Content, &s.Created, &s.Expires)
+
+		if err != nil {
+			return nil, err
+		}
+		snippets = append(snippets, s)
+	}
+	// When the rows.Next() loop has finished we call rows.Err() to retrieve any
+	// error that was encountered during the iteration. It's important to
+	// call this - don't assume that a successful iteration was completed
+	// over the whole resultset.
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	// If everything went OK then return the Snippets slice.
+	return snippets, nil
+
 }
