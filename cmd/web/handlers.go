@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"html/template"
+
 	//"html/template"
 	"net/http"
 	"strconv"
@@ -20,28 +20,9 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		app.serverError(w, err)
 		return
 	}
-	//Create an instance of tenplateData struct holding the slice of Snippets
-	data:=&templateData{
+	app.render(w, r, "home.page.tmpl", &templateData{
 		Snippets: s,
-	}
-	// Initialize a slice containing the paths to the two files. Note that the
-	// home.page.tmpl file must be the *first* file in the slice.
-	files := []string{
-		"./ui/html/home.page.tmpl",
-		"./ui/html/base.layout.tmpl",
-		"./ui/html/footer.partial.tmpl",
-	}
-
-	ts, err := template.ParseFiles(files...)
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
-	err = ts.Execute(w, data)
-	if err != nil {
-		app.serverError(w, err)
-	}
-	/* w.Write([]byte("Hello from Snippetbox")) */
+	})
 }
 
 func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
@@ -59,29 +40,9 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create an instance of a templateData struct
-	data:=&templateData{
+	app.render(w, r, "show.page.tmpl", &templateData{
 		Snippet: s,
-	}
-	// Initialize a slice containing the paths to the show.page.tmpl file,
-	// plus the base layout and footer partial that we made earlier.
-
-	files:=[]string{
-		"./ui/html/show.page.tmpl",
-		"./ui/html/base.layout.tmpl",
-		"./ui/html/footer.partial.tmpl",
-	}
-	//Parse the template files
-	ts, err:=template.ParseFiles(files...)
-	if err != nil {
-		app.serverError(w,err)
-		return
-	}
-	//Execute
-	err=ts.Execute(w, data)
-	if err != nil {
-		app.serverError(w, err)
-	}
+	})
 }
 
 func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
