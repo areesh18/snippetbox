@@ -20,13 +20,13 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		app.serverError(w, err)
 		return
 	}
-	for _, snippet := range s {
-		fmt.Fprintf(w, "%v\n", snippet)
+	//Create an instance of tenplateData struct holding the slice of Snippets
+	data:=&templateData{
+		Snippets: s,
 	}
-
 	// Initialize a slice containing the paths to the two files. Note that the
 	// home.page.tmpl file must be the *first* file in the slice.
-	/* files := []string{
+	files := []string{
 		"./ui/html/home.page.tmpl",
 		"./ui/html/base.layout.tmpl",
 		"./ui/html/footer.partial.tmpl",
@@ -37,10 +37,10 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		app.serverError(w, err)
 		return
 	}
-	err = ts.Execute(w, nil)
+	err = ts.Execute(w, data)
 	if err != nil {
 		app.serverError(w, err)
-	} */
+	}
 	/* w.Write([]byte("Hello from Snippetbox")) */
 }
 
@@ -58,6 +58,11 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 		app.serverError(w, err)
 		return
 	}
+
+	// Create an instance of a templateData struct
+	data:=&templateData{
+		Snippet: s,
+	}
 	// Initialize a slice containing the paths to the show.page.tmpl file,
 	// plus the base layout and footer partial that we made earlier.
 
@@ -73,7 +78,7 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//Execute
-	err=ts.Execute(w, s)
+	err=ts.Execute(w, data)
 	if err != nil {
 		app.serverError(w, err)
 	}
