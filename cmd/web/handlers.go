@@ -46,9 +46,18 @@ func (app *application) createSnippetForm(w http.ResponseWriter, r *http.Request
 }
 func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 
-	title := "O snail"
-	content := "O snail\nClimb Mount Fuji,\nBut slowly, slowly!\n\n– Kobayashi"
-	expires := "7"
+	// First we call r.ParseForm() which adds any data in POST request bodies
+	// to the r.PostForm map.
+	err := r.ParseForm()
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+	// Use the r.PostForm.Get() method to retrieve the relevant data fields
+	// from the r.PostForm map.
+	title := r.PostForm.Get("title")
+	content := r.PostForm.Get("content")
+	expires := r.PostForm.Get("expires")
 
 	id, err := app.snippets.Insert(title, content, expires)
 	if err != nil {
