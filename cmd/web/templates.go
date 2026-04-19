@@ -2,16 +2,18 @@ package main
 
 import (
 	"html/template"
+	"net/url"
 	"path/filepath"
 	"time"
 
 	"github.com/areesh18/snippetbox/pkg/models"
 )
 
-// Define a templateData type to act as the holding structure for
-// any dynamic data that we want to pass to our HTML templates.
+// Add FormData and FormErrors fields to the templateData struct.
 type templateData struct {
 	CurrentYear int
+	FormData url.Values
+	FormErrors map[string]string
 	Snippet     *models.Snippet
 	Snippets    []*models.Snippet
 }
