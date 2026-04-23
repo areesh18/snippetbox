@@ -2,18 +2,17 @@ package main
 
 import (
 	"html/template"
-	"net/url"
 	"path/filepath"
 	"time"
 
+	"github.com/areesh18/snippetbox/pkg/forms"
 	"github.com/areesh18/snippetbox/pkg/models"
 )
 
 // Add FormData and FormErrors fields to the templateData struct.
 type templateData struct {
 	CurrentYear int
-	FormData url.Values
-	FormErrors map[string]string
+	Form        *forms.Form
 	Snippet     *models.Snippet
 	Snippets    []*models.Snippet
 }
