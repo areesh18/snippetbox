@@ -8,15 +8,18 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/areesh18/snippetbox/pkg/models/mysql"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/golangcollege/sessions"
 )
 
 type application struct {
-	errorLog *log.Logger
-	infoLog  *log.Logger
-	snippets *mysql.SnippetModel
+	errorLog      *log.Logger
+	infoLog       *log.Logger
+	session       *sessions.Session
+	snippets      *mysql.SnippetModel
 	templateCache map[string]*template.Template
 }
 
@@ -24,6 +27,7 @@ func main() {
 
 	addr := flag.String("addr", ":4000", "HTTP network address")
 	dsn := flag.String("dsn", "web:passnippet@/snippetbox?parseTime=true", "MySQL data source name")
+	secret := flag.String("secret", "areesh!@#*&(AreeshZafar1212)ahah", "Secret Key")
 	flag.Parse()
 
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
@@ -37,15 +41,20 @@ func main() {
 	defer db.Close()
 
 	//initialize a new templateCache
-	templateCache, err:=newTemplateCache("./ui/html/")
+	templateCache, err := newTemplateCache("./ui/html/")
 	if err != nil {
 		errorLog.Fatal()
 	}
-	//add templateCache to the application dependencies
+	//use the sessions.New() function to initialize a new session manager,
+	//passing in the secret key as the parameter.
+	//then we configure its time field so it expires after 12 hours
+	session := sessions.New([]byte(*secret))
+	session.Lifetime = 12 * time.Hour
 	app := &application{
-		errorLog: errorLog,
-		infoLog:  infoLog,
-		snippets: &mysql.SnippetModel{DB: db},
+		errorLog:      errorLog,
+		infoLog:       infoLog,
+		session:       session,
+		snippets:      &mysql.SnippetModel{DB: db},
 		templateCache: templateCache,
 	}
 
