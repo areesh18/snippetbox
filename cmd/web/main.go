@@ -65,6 +65,10 @@ func main() {
 		ErrorLog:  errorLog,
 		Handler:   app.routes(),
 		TLSConfig: tlsConfig,
+		//adding Idle, ReadTimeout, WriteTimeout to the server
+		IdleTimeout: time.Minute,
+		ReadTimeout: 5*time.Second,
+		WriteTimeout: 10*time.Second,
 	}
 	infoLog.Printf("Starting server on %s", *addr)
 	// Use the ListenAndServeTLS() method to start the HTTPS server,
