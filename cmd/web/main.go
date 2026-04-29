@@ -22,6 +22,7 @@ type application struct {
 	session       *sessions.Session
 	snippets      *mysql.SnippetModel
 	templateCache map[string]*template.Template
+	users         *mysql.UserModel
 }
 
 func main() {
@@ -48,13 +49,16 @@ func main() {
 	}
 	session := sessions.New([]byte(*secret))
 	session.Lifetime = 12 * time.Hour
-	session.Secure = true // Set the Secure flag on our session cookies
+	session.Secure = true
+	// Initialize a mysql.UserModel instance and add it to the application
+	// dependencies.
 	app := &application{
 		errorLog:      errorLog,
 		infoLog:       infoLog,
 		session:       session,
 		snippets:      &mysql.SnippetModel{DB: db},
 		templateCache: templateCache,
+		users: &mysql.UserModel{DB: db},
 	}
 	//initialzie  a tls.Config struct to hold the non- default TLS settings we want the serve to use
 	tlsConfig := &tls.Config{
@@ -66,9 +70,9 @@ func main() {
 		Handler:   app.routes(),
 		TLSConfig: tlsConfig,
 		//adding Idle, ReadTimeout, WriteTimeout to the server
-		IdleTimeout: time.Minute,
-		ReadTimeout: 5*time.Second,
-		WriteTimeout: 10*time.Second,
+		IdleTimeout:  time.Minute,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
 	}
 	infoLog.Printf("Starting server on %s", *addr)
 	// Use the ListenAndServeTLS() method to start the HTTPS server,
