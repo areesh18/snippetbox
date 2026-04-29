@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"database/sql"
 	"flag"
 	"fmt"
@@ -45,11 +46,9 @@ func main() {
 	if err != nil {
 		errorLog.Fatal()
 	}
-	//use the sessions.New() function to initialize a new session manager,
-	//passing in the secret key as the parameter.
-	//then we configure its time field so it expires after 12 hours
 	session := sessions.New([]byte(*secret))
 	session.Lifetime = 12 * time.Hour
+	session.Secure = true // Set the Secure flag on our session cookies
 	app := &application{
 		errorLog:      errorLog,
 		infoLog:       infoLog,
@@ -57,14 +56,20 @@ func main() {
 		snippets:      &mysql.SnippetModel{DB: db},
 		templateCache: templateCache,
 	}
-
+	//initialzie  a tls.Config struct to hold the non- default TLS settings we want the serve to use
+	tlsConfig := &tls.Config{
+		CurvePreferences: []tls.CurveID{tls.X25519, tls.CurveP256},
+	}
 	srv := &http.Server{
-		Addr:     *addr,
-		ErrorLog: errorLog,
-		Handler:  app.routes(),
+		Addr:      *addr,
+		ErrorLog:  errorLog,
+		Handler:   app.routes(),
+		TLSConfig: tlsConfig,
 	}
 	infoLog.Printf("Starting server on %s", *addr)
-	err = srv.ListenAndServe()
+	// Use the ListenAndServeTLS() method to start the HTTPS server,
+	//We pass the two .pem files as parameter.
+	err = srv.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
 	errorLog.Fatal(err)
 }
 func openDB(dsn string) (*sql.DB, error) {
