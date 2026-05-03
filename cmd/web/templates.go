@@ -9,13 +9,13 @@ import (
 	"github.com/areesh18/snippetbox/pkg/models"
 )
 
-// Add FormData and FormErrors fields to the templateData struct.
 type templateData struct {
-	CurrentYear int
-	Form        *forms.Form
-	Flash       string
-	Snippet     *models.Snippet
-	Snippets    []*models.Snippet
+	AuthenticatedUser int
+	CurrentYear       int
+	Form              *forms.Form
+	Flash             string
+	Snippet           *models.Snippet
+	Snippets          []*models.Snippet
 }
 
 func newTemplateCache(dir string) (map[string]*template.Template, error) {
